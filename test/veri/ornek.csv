@@ -1,0 +1,7 @@
+title,category,type,tool,description_tr,prompt
+Sakin kedi,gorsel,image,chatgpt-gorsel,Kedi,"A cat sitting on a sofa, soft window light"
+Afiş,gorsel,image,chatgpt-gorsel,Afiş,"A poster with the text ""SALE 50%"" in bold letters"
+Şablon,gorsel,image,chatgpt-gorsel,Şablon,"A portrait in {argument name=""city"" default=""Rome""} at dusk"
+Boş yer tutucu,gorsel,image,chatgpt-gorsel,Yer tutucu,"A product photo of [PRODUCT NAME] on a table"
+Uzun,gorsel,image,chatgpt-gorsel,Uzun,"x"
+Metin istemi,metin,text,chatgpt,Metin,"Write a poem about autumn, with a title ""Leaves"" and a caption"
