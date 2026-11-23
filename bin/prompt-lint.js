@@ -4,7 +4,7 @@ import { denetle, KURALLAR, VARSAYILAN_LIMIT } from '../src/index.js';
 import { csvAyristir } from '../src/csv.js';
 
 const KULLANIM = `Kullanım:
-  prompt-lint <dosya>              Dosyadaki promptu denetler
+  prompt-lint <dosya> [dosya...]   Dosyalardaki promptları denetler
   prompt-lint -                    Promptu standart girdiden okur
   prompt-lint --csv <dosya>        CSV'deki promptları toplu denetler, özet yazar
 
@@ -19,7 +19,7 @@ Seçenekler:
 `;
 
 function argumanlar(argv) {
-  const a = { dosya: null, secenek: {} };
+  const a = { dosyalar: [], secenek: {} };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i];
     const deger = () => {
@@ -35,7 +35,7 @@ function argumanlar(argv) {
     else if (x === '--limit') a.secenek.limit = Number(deger());
     else if (x === '--kapat') a.secenek.kapat = deger().split(',').map((s) => s.trim());
     else if (x.startsWith('-') && x !== '-') throw new Error(`Bilinmeyen seçenek: ${x}`);
-    else a.dosya = x;
+    else a.dosyalar.push(x);
   }
   if (a.secenek.limit !== undefined && !(a.secenek.limit > 0)) throw new Error('--limit pozitif bir sayı olmalı');
   return a;
@@ -74,28 +74,51 @@ function toplu(a) {
   return 0;
 }
 
-function tek(a) {
-  const metin = a.dosya === '-' ? readFileSync(0, 'utf8') : readFileSync(a.dosya, 'utf8');
-  const bulgular = denetle(metin, a.secenek);
-  if (a.json) {
-    console.log(JSON.stringify(bulgular, null, 2));
-  } else if (!bulgular.length) {
-    console.log('Sorun bulunamadı.');
-  } else {
-    for (const b of bulgular) console.log(`[${b.seviye}] ${b.kural}: ${b.mesaj}`);
-  }
+function denetleDosya(yol, a) {
+  const metin = yol === '-' ? readFileSync(0, 'utf8') : readFileSync(yol, 'utf8');
+  return denetle(metin, a.secenek);
+}
+
+function cikisKodu(bulgular, a) {
   const hata = bulgular.some((b) => b.seviye === 'hata');
   const uyari = bulgular.some((b) => b.seviye === 'uyari');
   return hata || (a.siki && uyari) ? 1 : 0;
 }
 
+function yazdir(bulgular) {
+  if (!bulgular.length) console.log('Sorun bulunamadı.');
+  else for (const b of bulgular) console.log(`[${b.seviye}] ${b.kural}: ${b.mesaj}`);
+}
+
+function tek(a) {
+  const bulgular = denetleDosya(a.dosyalar[0], a);
+  if (a.json) console.log(JSON.stringify(bulgular, null, 2));
+  else yazdir(bulgular);
+  return cikisKodu(bulgular, a);
+}
+
+/** Birden fazla dosya: her dosya kendi başlığıyla yazılır, çıkış kodu en yüksek olandır. */
+function cokluDosya(a) {
+  const sonuclar = a.dosyalar.map((yol) => [yol, denetleDosya(yol, a)]);
+  if (a.json) {
+    console.log(JSON.stringify(Object.fromEntries(sonuclar), null, 2));
+  } else {
+    sonuclar.forEach(([yol, bulgular], i) => {
+      if (i) console.log('');
+      console.log(`${yol}:`);
+      yazdir(bulgular);
+    });
+  }
+  return Math.max(...sonuclar.map(([, b]) => cikisKodu(b, a)));
+}
+
 try {
   const a = argumanlar(process.argv.slice(2));
-  if (a.yardim || (!a.dosya && !a.csv)) {
+  if (a.yardim || (!a.dosyalar.length && !a.csv)) {
     process.stdout.write(KULLANIM);
     process.exit(a.yardim ? 0 : 2);
   }
-  process.exit(a.csv ? toplu(a) : tek(a));
+  process.exit(a.csv ? toplu(a) : a.dosyalar.length > 1 ? cokluDosya(a) : tek(a));
 } catch (e) {
   console.error(`Hata: ${e.message}`);
   process.exit(2);

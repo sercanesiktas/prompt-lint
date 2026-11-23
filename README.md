@@ -28,6 +28,12 @@ echo 'A poster with the text "SALE 50%" for [BRAND NAME]' | node bin/prompt-lint
 [hata] degisken: Doldurulması gereken değişken var ([BÜYÜK HARFLİ YER TUTUCU]): [BRAND NAME]. Varsayılan değeri yok, model bunu harfi harfine okur.
 ```
 
+Birden fazla dosya verilirse her biri kendi adıyla başlık altında yazılır. `--json` ile çıktı dosya yoluna göre bir nesne olur. Çıkış kodu, dosyalar arasındaki en yüksek koddur:
+
+```bash
+node bin/prompt-lint.js promptlar/*.txt --siki
+```
+
 Çıkış kodu `0` temiz ya da yalnızca uyarılı, `1` hata bulundu, `2` kullanım hatasıdır. `--siki` ile uyarılar da `1` verir, bu sayede CI'da kullanılabilir.
 
 | Seçenek | Açıklama |

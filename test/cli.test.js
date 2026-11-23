@@ -76,3 +76,26 @@ test('toplu CSV özeti', () => {
 test('CSV: olmayan sütun hata verir', () => {
   assert.equal(calistir(['--csv', ornekCsv, '--sutun', 'yok']).kod, 2);
 });
+
+test('birden fazla dosya: her biri başlıkla yazılır, çıkış kodu en yükseği alır', () => {
+  const temiz = dosya('A cat on a sofa');
+  const hatali = dosya('A photo of [PRODUCT NAME]');
+  const r = calistir([temiz, hatali]);
+  assert.equal(r.kod, 1);
+  assert.ok(r.cikti.includes(`${temiz}:\nSorun bulunamadı.`));
+  assert.ok(r.cikti.includes(`${hatali}:\n[hata]`));
+});
+
+test('birden fazla dosya ve --json: dosya yoluna göre nesne', () => {
+  const a = dosya('A cat on a sofa');
+  const b = dosya('A photo of [PRODUCT NAME]');
+  const r = calistir([a, b, '--json']);
+  const nesne = JSON.parse(r.cikti);
+  assert.deepEqual(nesne[a], []);
+  assert.ok(nesne[b].some((x) => x.seviye === 'hata'));
+});
+
+test('tek dosyada çıktı başlıksız kalır', () => {
+  const r = calistir([dosya('A cat on a sofa')]);
+  assert.equal(r.cikti.trim(), 'Sorun bulunamadı.');
+});
