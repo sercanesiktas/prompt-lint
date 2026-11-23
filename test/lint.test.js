@@ -68,3 +68,21 @@ test('csv: tırnak, virgül ve çift tırnak', () => {
   const s = csvAyristir('a,b\n"x, y","z ""q"""\n1,2\n');
   assert.deepEqual(s, [{ a: 'x, y', b: 'z "q"' }, { a: '1', b: '2' }]);
 });
+
+test('satır: bulgunun örneğinin geçtiği ilk satır numarası döner', () => {
+  const p = 'A calm lake at dawn\nsoft light\nA sign that says "OPEN" on the door';
+  const b = denetle(p).find((x) => x.kural === 'okunur-yazi');
+  assert.equal(b.satir, 3);
+});
+
+test('satır: aynı örnek iki yerde geçiyorsa ilki, tek satırlı promptta 1', () => {
+  const b = denetle('[BRAND] ve tekrar [BRAND]').find((x) => x.kural === 'degisken');
+  assert.equal(b.satir, 1);
+  const c = denetle('ilk satır\n[BRAND]\n[BRAND]').find((x) => x.kural === 'degisken');
+  assert.equal(c.satir, 2);
+});
+
+test('satır: örneği olmayan bulguda alan yok', () => {
+  const b = denetle('   ').find((x) => x.kural === 'bos');
+  assert.equal('satir' in b, false);
+});
