@@ -31,6 +31,9 @@ const DEGISKENLER = [
 /** Referans görsel isteyen kalıplar. */
 const REFERANS = /\b(?:reference image|uploaded (?:photo|image|picture)|attached (?:photo|image)|the (?:person|face|man|woman) in the (?:photo|image|reference)|same (?:face|person) as (?:in )?the (?:reference|photo|image)|identity lock)\b/i;
 
+/** Aynı kelimenin art arda en az üç kez geçmesi: "very very very", "masterpiece, masterpiece, masterpiece". */
+const TEKRAR = /(?<![\p{L}\p{N}])(\p{L}{2,})(?:[\s,;]+\1(?![\p{L}\p{N}])){2,}/giu;
+
 export const KURALLAR = [
   {
     id: 'bos',
@@ -95,6 +98,16 @@ export const KURALLAR = [
         );
       }
       return bulgular;
+    },
+  },
+  {
+    id: 'tekrar',
+    seviye: 'uyari',
+    kontrol(prompt) {
+      return [...prompt.matchAll(TEKRAR)].map((m) => ({
+        mesaj: `"${m[1]}" kelimesi art arda ${m[0].split(/[\s,;]+/).length} kez geçiyor. Tekrar çıktıyı güçlendirmez, bazı modellerde kalite düşürür ve sağlayıcı sınırına karakter harcar.`,
+        ornek: m[0],
+      }));
     },
   },
   {
