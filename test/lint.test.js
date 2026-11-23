@@ -85,6 +85,7 @@ test('satır: aynı örnek iki yerde geçiyorsa ilki, tek satırlı promptta 1',
 test('satır: örneği olmayan bulguda alan yok', () => {
   const b = denetle('   ').find((x) => x.kural === 'bos');
   assert.equal('satir' in b, false);
+});
 
 test('tekrar: art arda aynı kelime uyarı verir', () => {
   const b = denetle('A very very very detailed portrait').filter((x) => x.kural === 'tekrar');
