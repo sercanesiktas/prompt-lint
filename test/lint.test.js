@@ -85,4 +85,26 @@ test('satır: aynı örnek iki yerde geçiyorsa ilki, tek satırlı promptta 1',
 test('satır: örneği olmayan bulguda alan yok', () => {
   const b = denetle('   ').find((x) => x.kural === 'bos');
   assert.equal('satir' in b, false);
+
+test('tekrar: art arda aynı kelime uyarı verir', () => {
+  const b = denetle('A very very very detailed portrait').filter((x) => x.kural === 'tekrar');
+  assert.equal(b.length, 1);
+  assert.equal(b[0].seviye, 'uyari');
+  assert.match(b[0].mesaj, /"very" kelimesi art arda 3 kez/);
+});
+
+test('tekrar: virgülle ayrılmış etiket tekrarı da yakalanır, büyük küçük harf fark etmez', () => {
+  const b = denetle('masterpiece, Masterpiece, MASTERPIECE, a cat').filter((x) => x.kural === 'tekrar');
+  assert.equal(b.length, 1);
+});
+
+test('tekrar: iki kez geçen kelime, arada başka kelime olan ve kelime parçaları uyarı vermez', () => {
+  for (const p of ['a very very detailed cat', 'a cat and a dog and a bird', 'the then then thenthen', 'iki iki üç iki']) {
+    assert.equal(denetle(p).filter((x) => x.kural === 'tekrar').length, 0, p);
+  }
+});
+
+test('tekrar: Türkçe harfli kelimeler de çalışır, --kapat ile kapatılır', () => {
+  assert.equal(denetle('çok çok çok güzel bir manzara').filter((x) => x.kural === 'tekrar').length, 1);
+  assert.equal(denetle('çok çok çok güzel', { kapat: ['tekrar'] }).filter((x) => x.kural === 'tekrar').length, 0);
 });

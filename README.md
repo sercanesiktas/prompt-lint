@@ -63,6 +63,7 @@ denetle('A minimalist logo for a bakery');
 | `okunur-yazi` | uyarı | Tırnak içinde metin yazılmasını isteyenler (`text "OPEN"`) ve yazı ağırlıklı türler (afiş, logo, infografik, arayüz, menü, kapak ve benzerleri). |
 | `degisken` | hata | Varsayılan değeri olmayan `[BÜYÜK HARF]`, `${ad}`, `{{ad}}`, `{argument name="..."}`. |
 | `degisken` | bilgi | Varsayılanı olan `${ad:değer}` ve `{argument name="..." default="..."}`. Doldurulmasa da varsayılan kullanılabilir. |
+| `tekrar` | uyarı | Aynı kelimenin art arda en az üç kez geçmesi (`very very very`, `masterpiece, masterpiece, masterpiece`). Büyük küçük harf fark etmez. |
 | `json-sarmali` | bilgi | JSON biçimindeki ya da JSON gibi başlayıp kırpılmış promptlar. |
 | `referans-gorsel` | bilgi | Bir referans görsel gerektirenler. Yalnızca metinle çalıştırılırsa istenen kişi ya da öğe olmaz. |
 
