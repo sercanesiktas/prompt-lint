@@ -99,3 +99,17 @@ test('tek dosyada çıktı başlıksız kalır', () => {
   const r = calistir([dosya('A cat on a sofa')]);
   assert.equal(r.cikti.trim(), 'Sorun bulunamadı.');
 });
+
+test('çok satırlı promptta bulgunun satırı yazılır, tek satırlıda yazılmaz', () => {
+  const cok = calistir([dosya('A calm lake\nsoft light\nPhoto of [PRODUCT NAME]')]);
+  assert.match(cok.cikti, /\[hata\] degisken \(satır 3\):/);
+  const tek = calistir([dosya('Photo of [PRODUCT NAME]')]);
+  assert.match(tek.cikti, /\[hata\] degisken: /);
+  assert.doesNotMatch(tek.cikti, /satır/);
+});
+
+test('--json çıktısında satır alanı bulunur', () => {
+  const r = calistir([dosya('bir\niki [PRODUCT NAME]'), '--json']);
+  const b = JSON.parse(r.cikti).find((x) => x.kural === 'degisken');
+  assert.equal(b.satir, 2);
+});

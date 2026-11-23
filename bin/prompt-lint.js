@@ -76,7 +76,7 @@ function toplu(a) {
 
 function denetleDosya(yol, a) {
   const metin = yol === '-' ? readFileSync(0, 'utf8') : readFileSync(yol, 'utf8');
-  return denetle(metin, a.secenek);
+  return { bulgular: denetle(metin, a.secenek), cokSatirli: metin.trimEnd().includes('\n') };
 }
 
 function cikisKodu(bulgular, a) {
@@ -85,15 +85,20 @@ function cikisKodu(bulgular, a) {
   return hata || (a.siki && uyari) ? 1 : 0;
 }
 
-function yazdir(bulgular) {
+function yazdir(bulgular, cokSatirli) {
   if (!bulgular.length) console.log('Sorun bulunamadı.');
-  else for (const b of bulgular) console.log(`[${b.seviye}] ${b.kural}: ${b.mesaj}`);
+  else {
+    for (const b of bulgular) {
+      const yer = cokSatirli && b.satir ? ` (satır ${b.satir})` : '';
+      console.log(`[${b.seviye}] ${b.kural}${yer}: ${b.mesaj}`);
+    }
+  }
 }
 
 function tek(a) {
-  const bulgular = denetleDosya(a.dosyalar[0], a);
+  const { bulgular, cokSatirli } = denetleDosya(a.dosyalar[0], a);
   if (a.json) console.log(JSON.stringify(bulgular, null, 2));
-  else yazdir(bulgular);
+  else yazdir(bulgular, cokSatirli);
   return cikisKodu(bulgular, a);
 }
 
@@ -101,15 +106,15 @@ function tek(a) {
 function cokluDosya(a) {
   const sonuclar = a.dosyalar.map((yol) => [yol, denetleDosya(yol, a)]);
   if (a.json) {
-    console.log(JSON.stringify(Object.fromEntries(sonuclar), null, 2));
+    console.log(JSON.stringify(Object.fromEntries(sonuclar.map(([yol, s]) => [yol, s.bulgular])), null, 2));
   } else {
-    sonuclar.forEach(([yol, bulgular], i) => {
+    sonuclar.forEach(([yol, s], i) => {
       if (i) console.log('');
       console.log(`${yol}:`);
-      yazdir(bulgular);
+      yazdir(s.bulgular, s.cokSatirli);
     });
   }
-  return Math.max(...sonuclar.map(([, b]) => cikisKodu(b, a)));
+  return Math.max(...sonuclar.map(([, s]) => cikisKodu(s.bulgular, a)));
 }
 
 try {

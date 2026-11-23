@@ -34,6 +34,8 @@ Birden fazla dosya verilirse her biri kendi adıyla başlık altında yazılır.
 node bin/prompt-lint.js promptlar/*.txt --siki
 ```
 
+Çok satırlı promptlarda her bulgunun hangi satırda olduğu da yazılır (`[hata] degisken (satır 3): ...`). `--json` çıktısında bu `satir` alanıdır. Satır numarası, bulgunun örnek metninin geçtiği ilk satırdır, boş prompt ve uzunluk gibi örneği olmayan bulgularda bulunmaz.
+
 Çıkış kodu `0` temiz ya da yalnızca uyarılı, `1` hata bulundu, `2` kullanım hatasıdır. `--siki` ile uyarılar da `1` verir, bu sayede CI'da kullanılabilir.
 
 | Seçenek | Açıklama |
